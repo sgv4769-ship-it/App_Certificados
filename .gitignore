@@ -8,3 +8,8 @@ __pycache__/
 
 # Despliegues
 .vercel/
+
+# Base de datos local
+certificados.db
+*.db
+*.sqlite3

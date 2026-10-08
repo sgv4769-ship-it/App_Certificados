@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Cargar Archivos Excel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title">
+    <h2>Carga Masiva de Archivos</h2>
+    <p>Actualización de la base de datos institucional mediante libros de cálculo de Microsoft Excel</p>
+  </div>
+  <div class="page-actions">
+    <a href="/" class="btn btn-secondary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Volver al Tablero</span>
+    </a>
+  </div>
+</div>
+
+<div class="upload-card">
+  <div class="upload-card-header">
+    <h2>Formulario de Importación de Datos</h2>
+    <p>Seleccione los dos archivos oficiales requeridos para el cálculo de certificados y auditoría.</p>
+  </div>
+
+  <div class="upload-card-body">
+    <form action="/cargar" method="POST" enctype="multipart/form-data" id="form-carga">
+      <div class="upload-grid">
+        <!-- Archivo 1: Maestro de Estudiantes -->
+        <div>
+          <label class="file-dropzone" id="dropzone-maestro" for="archivo_maestro">
+            <input type="file" id="archivo_maestro" name="archivo_maestro" accept=".xlsx, .xls" required>
+            <div class="dropzone-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="M16 13H8"></path>
+                <path d="M16 17H8"></path>
+                <path d="M10 9H8"></path>
+              </svg>
+            </div>
+            <div class="dropzone-title">1. Maestro de Estudiantes</div>
+            <div class="dropzone-subtext">Archivo Excel (.xlsx)</div>
+            <div class="dropzone-subtext" style="font-size: 0.75rem; color: var(--color-gold-hover);">Hoja requerida: <strong>Estudiantes</strong></div>
+            <div class="dropzone-filename" id="nombre-maestro">Ningún archivo seleccionado</div>
+          </label>
+        </div>
+
+        <!-- Archivo 2: Registro de Evaluaciones -->
+        <div>
+          <label class="file-dropzone" id="dropzone-evaluaciones" for="archivo_evaluaciones">
+            <input type="file" id="archivo_evaluaciones" name="archivo_evaluaciones" accept=".xlsx, .xls" required>
+            <div class="dropzone-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="8" y1="13" x2="16" y2="13"></line>
+                <line x1="8" y1="17" x2="16" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div class="dropzone-title">2. Registro de Evaluaciones</div>
+            <div class="dropzone-subtext">Archivo Excel (.xlsx)</div>
+            <div class="dropzone-subtext" style="font-size: 0.75rem; color: var(--color-gold-hover);">Hoja requerida: <strong>Evaluaciones</strong></div>
+            <div class="dropzone-filename" id="nombre-evaluaciones">Ningún archivo seleccionado</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Cuadro informativo y normativo -->
+      <div class="info-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <div>
+          <strong>Requisitos de estructura de los datos:</strong>
+          <ul>
+            <li><strong>Maestro_Estudiantes.xlsx:</strong> Identificacion, Nombre_Completo, Correo, Programa, Cohorte.</li>
+            <li><strong>Registro_Evaluaciones.xlsx:</strong> Identificacion, Programa, Modulo, Nota, Asistencia_Pct, Fecha_Cierre.</li>
+            <li>La identificación del estudiante se normaliza como texto continuo sin espacios adicionales.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="upload-actions">
+        <a href="/" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-gold" id="btn-submit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Procesar y Cargar Datos</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Actualización interactiva del nombre del archivo seleccionado en las zonas de carga
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputMaestro = document.getElementById('archivo_maestro');
+    const labelMaestro = document.getElementById('dropzone-maestro');
+    const txtMaestro = document.getElementById('nombre-maestro');
+
+    const inputEvaluaciones = document.getElementById('archivo_evaluaciones');
+    const labelEvaluaciones = document.getElementById('dropzone-evaluaciones');
+    const txtEvaluaciones = document.getElementById('nombre-evaluaciones');
+
+    if (inputMaestro) {
+      inputMaestro.addEventListener('change', function () {
+        if (this.files && this.files.length > 0) {
+          txtMaestro.textContent = '✓ ' + this.files[0].name;
+          labelMaestro.classList.add('has-file');
+        } else {
+          txtMaestro.textContent = 'Ningún archivo seleccionado';
+          labelMaestro.classList.remove('has-file');
+        }
+      });
+    }
+
+    if (inputEvaluaciones) {
+      inputEvaluaciones.addEventListener('change', function () {
+        if (this.files && this.files.length > 0) {
+          txtEvaluaciones.textContent = '✓ ' + this.files[0].name;
+          labelEvaluaciones.classList.add('has-file');
+        } else {
+          txtEvaluaciones.textContent = 'Ningún archivo seleccionado';
+          labelEvaluaciones.classList.remove('has-file');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
