@@ -1,0 +1,10 @@
+# Entornos virtuales
+.env
+.venv/
+
+# Python cache y compilados
+__pycache__/
+*.pyc
+
+# Despliegues
+.vercel/
