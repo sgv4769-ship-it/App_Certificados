@@ -32,14 +32,16 @@ def _resolver_ruta_insumo(nombre_archivo: str, ruta_provista: Optional[Union[str
             return ruta
         raise FileNotFoundError(f"No se encontró el archivo especificado: {ruta_provista}")
 
+    # Rutas ancladas a la raíz del proyecto (donde vive este archivo),
+    # para que funcionen sin importar desde dónde se ejecute la app.
     directorios_candidatos = ["insumos", "Insumo", "Insumos"]
     for dir_nombre in directorios_candidatos:
-        candidato = Path(dir_nombre) / nombre_archivo
+        candidato = ROOT_DIR / dir_nombre / nombre_archivo
         if candidato.exists():
             return candidato
 
     # Fallback default
-    return Path("insumos") / nombre_archivo
+    return ROOT_DIR / "insumos" / nombre_archivo
 
 
 def leer_maestro_estudiantes(ruta_archivo: Optional[Union[str, Path]] = None) -> List[Dict[str, Any]]:

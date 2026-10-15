@@ -159,6 +159,14 @@
       <span>Listado consolidado de registros y estados calculados</span>
     </div>
     <div class="table-search-box">
+      <form method="get" action="/" id="filtro-programa" title="Filtrar la tabla por programa">
+        <select name="programa" onchange="document.getElementById('filtro-programa').submit()">
+          <option value="">Todos los programas</option>
+          {% for prog in programas %}
+          <option value="{{ prog }}" {% if prog == programa_sel %}selected{% endif %}>{{ prog }}</option>
+          {% endfor %}
+        </select>
+      </form>
       <svg class="table-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>

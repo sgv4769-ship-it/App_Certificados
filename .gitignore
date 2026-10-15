@@ -13,3 +13,10 @@ __pycache__/
 certificados.db
 *.db
 *.sqlite3
+
+# Archivos temporales
+*.tmp
+*.temp
+*~
+.DS_Store
+Thumbs.db
