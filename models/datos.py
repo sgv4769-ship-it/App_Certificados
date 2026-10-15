@@ -20,6 +20,17 @@ load_dotenv(dotenv_path=ROOT_DIR / ".env")
 DB_LOCAL_SQLITE = ROOT_DIR / "certificados.db"
 
 
+def ruta_sqlite_local() -> Path:
+    """Ruta del SQLite local según el entorno.
+
+    En Vercel el disco es de solo lectura (salvo /tmp), así que ahí
+    la base vive en /tmp. Vercel define automáticamente VERCEL=1.
+    """
+    if os.environ.get("VERCEL"):
+        return Path("/tmp") / "certificados.db"
+    return DB_LOCAL_SQLITE
+
+
 def _es_postgres() -> bool:
     """Determina si se cuenta con una URL de PostgreSQL válida configurada."""
     url = os.environ.get("DATABASE_URL", "").strip()
@@ -52,7 +63,7 @@ def obtener_conexion():
         finally:
             conn.close()
     else:
-        conn = sqlite3.connect(DB_LOCAL_SQLITE)
+        conn = sqlite3.connect(ruta_sqlite_local())
         conn.row_factory = sqlite3.Row
         try:
             yield conn

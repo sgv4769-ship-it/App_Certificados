@@ -12,8 +12,8 @@ Plan por etapas en `PLAN.md`: 1) validar cruce de datos, 2) backend Flask, 3) in
 - Verificación rápida: `uv run python -c "from models.certificados import obtener_resumen_completo; print(obtener_resumen_completo()['contadores'])"` → `{'aprobacion': 19, 'participacion': 3, 'sin_certificado': 1, 'total_inconsistencias': 3}`
 
 ## Arquitectura MVC (respetarla)
-- `app.py`: solo crea `Flask(__name__, template_folder="views", static_folder="views/static")` y registra `tablero_bp` + `certificados_bp`. Sin lógica.
-- `models/datos.py`: ÚNICO que toca la BD. Postgres/Supabase solo si `DATABASE_URL` empieza con `postgresql://` o `postgres://` (con `psycopg.connect(..., prepare_threshold=None)` por el pooler); si no, SQLite `certificados.db` (en `.gitignore`, no commitear).
+- `app.py`: crea `Flask(__name__, template_folder="views", static_folder="views/static")`, registra `tablero_bp` + `certificados_bp` e `inicializar_bd()` al arrancar (crea tablas y siembra `Insumo/` si la BD está vacía; vital en Vercel). Sin lógica de negocio.
+- `models/datos.py`: ÚNICO que toca la BD. Postgres/Supabase solo si `DATABASE_URL` empieza con `postgresql://` o `postgres://` (con `psycopg.connect(..., prepare_threshold=None)` por el pooler); si no, SQLite: `certificados.db` local, o `/tmp/certificados.db` si existe `VERCEL=1` (disco de Vercel es de solo lectura). En `.gitignore`, no commitear.
 - `models/certificados.py`: reglas R1–R6. Constantes `NOTA_MINIMA=70`, `ASISTENCIA_MINIMA=80`, `ASISTENCIA_CRITICA=50` (límites inclusivos).
 - `services/carga_excel.py`: lee hojas `Estudiantes`/`Evaluaciones`, normaliza `Identificacion` a texto (`strip()` + quita `.0`). Acepta carpetas `insumos|Insumo|Insumos`; la real es `Insumo/`.
 - `services/generador_pdf.py`: fpdf2, A4 horizontal, `#14213D` / `#B8923D`.
